@@ -1,0 +1,16 @@
+{
+  "name": "velixir-n8n",
+  "version": "1.0.0",
+  "private": true,
+  "description": "n8n workflow automation, ready to deploy on velixir.",
+  "scripts": {
+    "start": "N8N_PORT=$PORT N8N_LISTEN_ADDRESS=0.0.0.0 n8n start"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "n8n": "^1.55.2"
+  },
+  "license": "MIT"
+}
