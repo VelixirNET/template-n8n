@@ -1,0 +1,15 @@
+# Build settings for velixir's builder (Nixpacks).
+#
+# n8n 2 requires Node 24. Naming the setup packages also keeps out what the builder would
+# otherwise add: it spots puppeteer somewhere deep in n8n's dependency tree and installs
+# Chromium plus a dozen GUI libraries, hundreds of megabytes and minutes of build time that
+# nothing in n8n uses. Listing packages here replaces the detected set rather than adding to it.
+[phases.setup]
+nixPkgs = ["nodejs_24"]
+aptPkgs = []
+
+# Straight to node rather than `npm run start`: npm and a shell in between do not pass SIGTERM
+# on, so n8n would be killed mid-execution on every redeploy instead of finishing what it is
+# running. start.js forwards the signal to n8n.
+[start]
+cmd = "node start.js"

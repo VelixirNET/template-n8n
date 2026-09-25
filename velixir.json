@@ -1,0 +1,15 @@
+{
+  "name": "n8n",
+  "tagline": "Workflow automation you host yourself.",
+  "description": "Connect APIs, schedule jobs, and build integrations from a visual editor on infrastructure you control. Deploying it creates a managed Postgres for your workflows, credentials and files, sets up the owner account for you (the password is in the deploy log), and keeps the encryption key safe across redeploys. A thin wrapper around the upstream npm package, so upgrading is a version bump.",
+  "language": "Node",
+  "runtimeVersion": "24",
+  "accent": "#EA4B71",
+  "tags": ["Automation", "Managed Postgres", "Visual editor"],
+  "topics": ["n8n", "workflow-automation"],
+  "minMemoryMb": 1024,
+  "alwaysOn": true,
+  "services": {
+    "postgres": { "env": "DATABASE_URL" }
+  }
+}
