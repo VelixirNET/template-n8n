@@ -180,6 +180,12 @@ function n8nEnv(db, encryptionKey, overrides) {
   setDefault('N8N_EDITOR_BASE_URL', publicUrl);
   setDefault('N8N_PROXY_HOPS', '1');
 
+  // The editor's live updates (execution progress, "workflow saved elsewhere") over server-sent
+  // events instead of n8n's default WebSocket. SSE is plain HTTP, so it works through any proxy,
+  // including edges that cannot pass a WebSocket; n8n supports both. Set it to 'websocket' if
+  // you'd rather have that.
+  setDefault('N8N_PUSH_BACKEND', 'sse');
+
   // Files handled by workflows are stored in Postgres: the container disk is wiped on every
   // redeploy, and n8n's in-memory mode is deprecated.
   setDefault('N8N_DEFAULT_BINARY_DATA_MODE', 'database');

@@ -42,7 +42,7 @@ release, and `start.js` translates what velixir provides into what n8n reads:
 | `PORT` | `N8N_PORT`, listening on `0.0.0.0` |
 | `DATABASE_URL` | `DB_TYPE=postgresdb` and the `DB_POSTGRESDB_*` settings, with TLS |
 | `VELIXIR_APP_SLUG` | `WEBHOOK_URL`, `N8N_EDITOR_BASE_URL`, `N8N_HOST` (override with `PUBLIC_URL`) |
-| nothing | a persistent `N8N_ENCRYPTION_KEY`, binary data in Postgres, telemetry off |
+| nothing | a persistent `N8N_ENCRYPTION_KEY`, binary data in Postgres, telemetry off, editor updates over server-sent events |
 
 Anything you set yourself on the Environment tab wins, so every
 [n8n environment variable](https://docs.n8n.io/hosting/configuration/environment-variables/)
@@ -76,6 +76,10 @@ to a disk that is wiped on every redeploy, so keep files in the database or an e
 
 **One replica.** n8n's queue mode, for running executions across several workers, needs a Valkey
 and separate worker processes. This template runs n8n as a single process.
+
+**Live editor updates use server-sent events.** n8n pushes execution progress to the editor over a
+WebSocket by default; this template sets `N8N_PUSH_BACKEND=sse`, which is plain HTTP and works
+through any proxy. Set it to `websocket` on the Environment tab if you'd rather use that.
 
 ## Running it locally
 
