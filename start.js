@@ -14,11 +14,16 @@
 //      public URL that is a race nobody should have to win. The first boot creates the owner
 //      itself, with a generated password printed to the deploy log, before n8n takes any traffic.
 //
+// With a velixir volume (VELIXIR_VOLUME_PATH, added by the template on paid plans), n8n's own
+// folder lives on it, so files the "Read/Write Files from Disk" node writes survive a redeploy.
+// The encryption key and binary data stay in Postgres either way, so nothing depends on the disk.
+//
 // Everything n8n reads can still be set directly on the app's Environment tab; nothing here
 // overrides a variable you set yourself.
 
 const http = require('http');
 const crypto = require('crypto');
+const path = require('path');
 const { spawn } = require('child_process');
 const { Client } = require('pg');
 const bcrypt = require('bcryptjs');
@@ -189,6 +194,9 @@ function n8nEnv(db, encryptionKey, overrides) {
   // Files handled by workflows are stored in Postgres: the container disk is wiped on every
   // redeploy, and n8n's in-memory mode is deprecated.
   setDefault('N8N_DEFAULT_BINARY_DATA_MODE', 'database');
+  // n8n's folder (~/.n8n by default) on the volume when there is one: it is where the Read/Write
+  // Files from Disk node lands by default, and it then survives redeploys.
+  if (process.env.VELIXIR_VOLUME_PATH) setDefault('N8N_USER_FOLDER', path.join(process.env.VELIXIR_VOLUME_PATH, 'n8n'));
   setDefault('N8N_DIAGNOSTICS_ENABLED', 'false');
 
   return { ...env, ...overrides };

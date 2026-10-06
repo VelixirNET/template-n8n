@@ -19,6 +19,8 @@ Deploy it from the gallery and it comes up ready to use:
 - **An encryption key that survives.** n8n encrypts every credential you store with a key it
   normally keeps on local disk, and container disks are wiped on every redeploy. This key is
   generated once and kept in the database, so your credentials stay readable.
+- **A persistent volume for n8n's own folder** (paid plans), so files the Read/Write Files from
+  Disk node writes are still there after a redeploy.
 - **The right public URL for webhooks**, worked out from the app's address, so the webhook URLs
   n8n hands to third parties point back at it.
 
@@ -42,6 +44,7 @@ release, and `start.js` translates what velixir provides into what n8n reads:
 | `PORT` | `N8N_PORT`, listening on `0.0.0.0` |
 | `DATABASE_URL` | `DB_TYPE=postgresdb` and the `DB_POSTGRESDB_*` settings, with TLS |
 | `VELIXIR_APP_SLUG` | `WEBHOOK_URL`, `N8N_EDITOR_BASE_URL`, `N8N_HOST` (override with `PUBLIC_URL`) |
+| `VELIXIR_VOLUME_PATH` | `N8N_USER_FOLDER` on the volume, when the app has one |
 | nothing | a persistent `N8N_ENCRYPTION_KEY`, binary data in Postgres, telemetry off, editor updates over server-sent events |
 
 Anything you set yourself on the Environment tab wins, so every
@@ -71,8 +74,9 @@ resets by email, and the Send Email node will not connect. Use an email API node
 Postmark, Brevo, SendGrid) in workflows instead.
 
 **Some nodes are off by default.** n8n 2 disables the Execute Command and Local File Trigger nodes
-unless you change `NODES_EXCLUDE`. The Read/Write Files from Disk node still works, but it writes
-to a disk that is wiped on every redeploy, so keep files in the database or an external bucket.
+unless you change `NODES_EXCLUDE`. The Read/Write Files from Disk node works and, with the template's
+volume, what it writes under n8n's folder survives redeploys. Without a volume that disk is wiped on
+every redeploy, so keep files in the database or an external bucket.
 
 **One replica.** n8n's queue mode, for running executions across several workers, needs a Valkey
 and separate worker processes. This template runs n8n as a single process.

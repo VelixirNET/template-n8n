@@ -11,5 +11,6 @@
   "alwaysOn": true,
   "services": {
     "postgres": { "env": "DATABASE_URL" }
-  }
+  },
+  "volume": { "mountPath": "/data", "limitGb": 10 }
 }
