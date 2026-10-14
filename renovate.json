@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "n8n 3 is Docker only and cannot run from npm, so stay on n8n 2.",
+      "matchPackageNames": ["n8n"],
+      "allowedVersions": "<3.0.0"
+    }
+  ]
+}

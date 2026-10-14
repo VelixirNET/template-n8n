@@ -54,6 +54,11 @@ still works as documented.
 To upgrade n8n, change the version in `package.json` and deploy. Read n8n's release notes first:
 major versions have breaking changes.
 
+**This template runs n8n 2.** n8n 3 drops npm installs and runs only from n8n's Docker image, so
+there is no n8n 3 package for this wrapper to install. Stay on the latest 2.x release, which gets
+n8n's security fixes. If `package.json` ever installs 3.x, the app shows a page saying so instead
+of starting, and the included `renovate.json` keeps Renovate on 2.x.
+
 There is no `package-lock.json` on purpose. n8n's dependency tree has peer-dependency conflicts
 that make `npm ci` reject a lockfile even when the same npm version wrote it, so the build runs
 `npm install` against the exact n8n version pinned here instead. n8n pins most of its own

@@ -274,9 +274,39 @@ for (const signal of ['SIGTERM', 'SIGINT']) {
   });
 }
 
+// ─── Version guard ──────────────────────────────────────────────────────────
+
+// n8n 3 is Docker only and publishes no runnable npm package, so this wrapper supports n8n 2.
+// If a version bump (by hand or by a dependency bot) pulls in 3.x, say so plainly instead of
+// failing somewhere deep inside n8n.
+function checkN8nVersion() {
+  let version;
+  try {
+    const pkgPath = path.join(path.dirname(require.resolve('n8n/bin/n8n')), '..', 'package.json');
+    version = JSON.parse(require('fs').readFileSync(pkgPath, 'utf8')).version;
+  } catch (err) {
+    console.error(`n8n is not installed (${err.message}). Check the build log.`);
+    return 'n8n is not installed. Check the build log.';
+  }
+  if (Number(version.split('.')[0]) !== 2) {
+    console.error(`package.json installs n8n ${version}, but this template runs n8n 2 only: n8n 3 no longer `
+      + 'supports npm installs. Pin the latest 2.x release in package.json and redeploy.');
+    return `This template runs n8n 2, but n8n ${version} is installed. Pin n8n 2 in package.json and redeploy.`;
+  }
+  return null;
+}
+
 // ─── Main ───────────────────────────────────────────────────────────────────
 
 async function main() {
+  const versionProblem = checkN8nVersion();
+  if (versionProblem) {
+    holdingServer(() => ({ status: 503, html: page('n8n cannot start', `
+  <h1>n8n cannot start</h1>
+  <p class="sub">${escapeHtml(versionProblem)}</p>`) }));
+    return;
+  }
+
   if (!process.env.DATABASE_URL) {
     console.log('DATABASE_URL is not set, so n8n is not started. Serving the setup page instead.\n'
       + 'Bind a managed Postgres to this app as DATABASE_URL, then redeploy.');
@@ -322,7 +352,10 @@ async function main() {
     // First boot. Create the owner on a private port before n8n takes public traffic, then
     // restart without the owner variables so the account can be changed in the UI straight away.
     status = 'Setting n8n up for the first time. This takes a minute or two.';
-    const email = pinnedEmail || `owner@${new URL(publicUrl).hostname}`;
+    // n8n rejects an address without a real domain (owner@localhost when run locally).
+    const ownerHost = new URL(publicUrl).hostname;
+    const email = pinnedEmail
+      || `owner@${/^([a-z0-9-]+\.)+[a-z]{2,}$/i.test(ownerHost) ? ownerHost : 'example.com'}`;
     const password = generatedPassword();
     const first = spawnN8n(n8nEnv(db, encryptionKey, {
       ...ownerEnv(email, password),
